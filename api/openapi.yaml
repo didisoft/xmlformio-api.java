@@ -1,0 +1,139 @@
+openapi: 3.0.1
+info:
+  contact:
+    email: support@xmlform.io
+    url: http://xmlform.io/contact
+  description: Xmlform.io REST API for working with web forms backed by XML data
+  license:
+    name: MIT
+    url: https://mit-license.org/
+  title: Xmlform.io REST API
+  version: "1.0"
+  x-logo:
+    url: https://xmlform.io/wp-content/uploads/2024/02/FullLogo_Transparent_NoBuffer.png
+externalDocs:
+  description: XMLForm.io web documentation
+  url: https://xmlform.io/docs
+servers:
+- url: https://api.xmlform.io
+paths:
+  /jwt/:
+    post:
+      description: Authenticates and returns a JWT token
+      operationId: jwt-login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/jwt_login_request'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/jwt_login_200_response'
+          description: Successful login and JWT token return
+        "401":
+          description: Unauthorized - Invalid Client id or Client secret
+        "400":
+          description: Bad Request - Missing parameters or invalid format
+      summary: JWT Token endpoint
+      tags:
+      - xmlformio
+      x-content-type: application/json
+      x-accepts:
+      - application/json
+  /xml/v1/FormToXmlV1/:
+    post:
+      description: Converts provided xmlform.io form data into XML document
+      operationId: form-to-xml
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+        description: form data submitted from xmlform.io web form
+        required: true
+      responses:
+        "200":
+          content:
+            application/xml:
+              schema:
+                type: string
+          description: Returns XML data
+        "401":
+          description: Not authenticated
+        "403":
+          description: Access token does not have the required scope
+      security:
+      - bearerAuth: []
+      summary: Converts provided xmlform.io form data into XML document
+      tags:
+      - xmlformio
+      x-content-type: application/json
+      x-accepts:
+      - application/xml
+  /xml/v1/XmlToFormV1/:
+    post:
+      description: |
+        Converts XML document into form data, ready for editing in an xmlform.io web form.
+        #Example code
+        Example code for various languages can be found at [Xml to Form examples](https://xmlform.io/docs/xml-to-form)
+      operationId: xml-to-form
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+        required: true
+      responses:
+        "200":
+          content:
+            application/xml:
+              schema:
+                type: string
+          description: Returns XML data
+        "401":
+          description: Not authenticated
+        "403":
+          description: Access token does not have the required scope
+      security:
+      - bearerAuth: []
+      summary: Converts provided XML document into xmlform.io form data
+      tags:
+      - xmlformio
+      x-content-type: application/json
+      x-accepts:
+      - application/xml
+components:
+  responses:
+    UnauthorizedError:
+      description: Access token is missing or invalid
+  schemas:
+    jwt_login_request:
+      properties:
+        client_id:
+          description: The Client id
+          example: johndoe
+          type: string
+        client_secret:
+          description: The Client secret
+          example: securepassword123
+          type: string
+      type: object
+    jwt_login_200_response:
+      example:
+        token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+      properties:
+        token:
+          description: JWT token for authentication
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+          type: string
+      type: object
+  securitySchemes:
+    bearerAuth:
+      bearerFormat: JWT
+      scheme: bearer
+      type: http
+
